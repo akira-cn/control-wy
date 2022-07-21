@@ -1,0 +1,141 @@
+吾嘗觀「「異步秘術」」之書。
+吾嘗觀「「腳本秘術」」之書。
+
+爪哇國有腳本
+const waitKeyDown = async () => {
+  return new Promise(resolve => {
+    window.addEventListener('keydown', ({key}) => {
+      resolve(key);
+    }, {once: true});
+  });
+}
+const waitKeyUp = async () => {
+  return new Promise(resolve => {
+    window.addEventListener('keyup', ({key}) => {
+      resolve(key);
+    }, {once: true});
+  });
+}
+const __wenyanPointerStateHandler = function({x, y}) {
+  const {left, top} = this.getBoundingClientRect();
+  x -= left;
+  y -= top;
+  this.__lastX = x;
+  this.__lastY = y;
+  this.__startX = x;
+  this.__startY = y;
+  this.__time = Date.now();
+}
+
+const __wenyanPointerEventHandler = function(resolve, {type, buttons, button, x, y}) {
+  const {left, top} = this.getBoundingClientRect();
+  x -= left;
+  y -= top;
+  const ret = {
+    '\u9375\u503c': buttons,
+    '\u55ae\u9375\u503c': button,
+    '\u7d93\u6578': x,
+    '\u7def\u6578': y,
+  };
+  if(type === 'pointermove') {
+    const time = Date.now() - this.__time;
+    if(this.__lastX == null) this.__lastX = x;
+    if(this.__lastY == null) this.__lastY = y;
+    if(this.__startX == null) this.__startX = x;
+    if(this.__startY == null) this.__startY = y;
+    velocityX = (x - this.__lastX) / (time || 1);
+    velocityY = (y - this.__lastY) / (time || 1);
+    ret['\u524d\u7d93'] = this.__lastX;
+    ret['\u524d\u7def'] = this.__lastY;
+    ret['\u59cb\u7d93'] = this.__startX;
+    ret['\u59cb\u7def'] = this.__startY;
+    ret['\u7d93\u901f'] = velocityX;
+    ret['\u7def\u901f'] = velocityY;
+    this.__lastX = x;
+    this.__lastY = y;
+    this.__time = Date.now();
+  }
+  resolve(ret);
+} 
+
+const waitPointerDown = async (container) => {
+  return new Promise(resolve => {
+    container.addEventListener('pointerdown', __wenyanPointerEventHandler.bind(container, resolve), {once: true});
+  });
+}
+
+const waitPointerUp = async (container) => {
+  return new Promise(resolve => {
+    container.addEventListener('pointerup', __wenyanPointerEventHandler.bind(container, resolve), {once: true});
+  });
+}
+
+const waitPointerMove = async (container) => {
+  return new Promise(resolve => {
+    if(!container.__initPointerState) {
+      container.__initPointerState = __wenyanPointerStateHandler;
+      container.addEventListener('pointerdown', __wenyanPointerStateHandler.bind(container));
+    }
+    container.addEventListener('pointermove', __wenyanPointerEventHandler.bind(container, resolve), {once: true});
+  });
+}
+
+const waitPointerEnter = async (container) => {
+  return new Promise(resolve => {
+    container.addEventListener('pointerenter', __wenyanPointerEventHandler.bind(container, resolve), {once: true});
+  });
+}
+
+const waitPointerLeaver = async (container) => {
+  return new Promise(resolve => {
+    container.addEventListener('pointerleave', __wenyanPointerEventHandler.bind(container, resolve), {once: true});
+  });
+}
+其文如是矣。
+
+今有一術。名之曰「等待按鍵」。
+欲行是術以俟其毕。
+是術曰。
+  施「await waitKeyDown」。乃得矣。
+是謂「等待按鍵」之術也。
+
+今有一術。名之曰「等待松鍵」。
+欲行是術以俟其毕。
+是術曰。
+  施「await waitKeyUp」。乃得矣。
+是謂「等待松鍵」之術也。
+
+今有一術。名之曰「等待指針按下」。
+欲行是術。必先得一物。曰「容器」。
+行是術以俟其毕。
+是術曰。
+  施「await waitPointerDown」於「容器」。乃得矣。
+是謂「等待指針按下」之術也。
+
+今有一術。名之曰「等待指針鬆開」。
+欲行是術。必先得一物。曰「容器」。
+行是術以俟其毕。
+是術曰。
+  施「await waitPointerUp」於「容器」。乃得矣。
+是謂「等待指針鬆開」之術也。
+
+今有一術。名之曰「等待指針移動」。
+欲行是術。必先得一物。曰「容器」。
+行是術以俟其毕。
+是術曰。
+  施「await waitPointerMove」於「容器」。乃得矣。
+是謂「等待指針移動」之術也。
+
+今有一術。名之曰「等待指針移入」。
+欲行是術。必先得一物。曰「容器」。
+行是術以俟其毕。
+是術曰。
+  施「await waitPointerEnter」於「容器」。乃得矣。
+是謂「等待指針移入」之術也。
+
+今有一術。名之曰「等待指針移出」。
+欲行是術。必先得一物。曰「容器」。
+行是術以俟其毕。
+是術曰。
+  施「await waitPointerLeave」於「容器」。乃得矣。
+是謂「等待指針移出」之術也。
